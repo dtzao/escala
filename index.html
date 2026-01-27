@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Calendário de Trabalho 2026</title>
+
+<style>
+:root {
+    --bg: #2b2b2b;
+    --card: #3a3a3a;
+    --text: #f1f1f1;
+    --border: #555;
+
+    --dejem: #a8e6a3;
+    --delegada: #1b5e20;
+    --pendente: #f4e285;
+    --trabalho: #0d47a1;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+}
+
+.container {
+    width: 900px;
+    padding: 20px;
+    text-align: center;
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+button {
+    background: #555;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+button:hover { background: #777; }
+
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+}
+
+.weekday {
+    font-weight: bold;
+    padding: 6px 0;
+}
+
+.day {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 6px;
+    min-height: 95px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.day strong {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 18px;
+}
+
+.dejem { background: var(--dejem); color: #000; }
+.delegada { background: var(--delegada); }
+.pendente { background: var(--pendente); color: #000; }
+.trabalho { background: var(--trabalho); }
+
+.feriado {
+    color: #ff5c5c;
+    font-size: 12px;
+}
+
+.total {
+    margin-top: 20px;
+    font-size: 18px;
+}
+
+/* MODAL */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.6);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: #444;
+    padding: 20px;
+    border-radius: 6px;
+    width: 320px;
+    text-align: left;
+}
+
+label {
+    display: block;
+    margin-top: 12px;
+}
+
+select, input {
+    width: 100%;
+    padding: 6px;
+    margin-top: 4px;
+}
+
+.modal-actions {
+    margin-top: 18px;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* RESPONSIVO */
+@media (max-width: 600px) {
+    .container {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .calendar {
+        gap: 4px;
+    }
+
+    .day {
+        min-height: 80px;
+        padding: 4px;
+        font-size: 12px;
+    }
+
+    .weekday {
+        font-size: 12px;
+    }
+
+    .day strong {
+        font-size: 20px;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+
+    .total {
+        font-size: 16px;
+    }
+
+    .modal-content {
+        width: 90%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h1>Calendário de Trabalho — 2026</h1>
+
+<div class="controls">
+    <button onclick="mudarMes(-1)">◀</button>
+    <strong id="mesAno"></strong>
+    <button onclick="mudarMes(1)">▶</button>
+</div>
+
+<div class="calendar" id="calendar"></div>
+
+<div class="total">
+    Receber no mês <span id="mesReceber"></span>: R$ <span id="totalMes">0.00</span>
+</div>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <h3 id="modalDia"></h3>
+
+        <label>Status
+            <select id="status" onchange="controlarCampos()">
+                <option value="">—</option>
+                <option value="pendente">Pendente</option>
+                <option value="trabalho">Dia de Trabalho</option>
+                <option value="dejem">Aprovado DEJEM</option>
+                <option value="delegada">Aprovado Delegada</option>
+            </select>
+        </label>
+
+        <label>Horário
+            <input type="text" id="horario" placeholder="Ex: Das 22h00 às 06h00" disabled>
+        </label>
+
+        <label>Valor (R$)
+            <input type="number" id="valor" step="0.01" disabled>
+        </label>
+
+        <div class="modal-actions">
+            <button onclick="salvarDia()">Salvar</button>
+            <button onclick="fecharModal()">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const ano = 2026;
+let mesAtual = 0;
+let diaSelecionado = null;
+
+const diasSemana = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+
+const feriadosSP2026 = {
+    "2026-0-1": "Confraternização Universal",
+    "2026-0-25": "Aniversário de São Paulo",
+    "2026-1-16": "Carnaval",
+    "2026-1-17": "Carnaval",
+    "2026-1-18": "Quarta-feira de Cinzas",
+    "2026-3-3": "Sexta-feira Santa",
+    "2026-3-21": "Tiradentes",
+    "2026-4-1": "Dia do Trabalhador",
+    "2026-5-4": "Corpus Christi",
+    "2026-6-9": "Revolução Constitucionalista",
+    "2026-8-7": "Independência do Brasil",
+    "2026-9-12": "Nossa Senhora Aparecida",
+    "2026-10-2": "Finados",
+    "2026-10-15": "Proclamação da República",
+    "2026-10-20": "Consciência Negra",
+    "2026-11-25": "Natal"
+};
+
+function renderCalendar() {
+    const calendar = document.getElementById("calendar");
+    calendar.innerHTML = "";
+
+    document.getElementById("mesAno").innerText =
+        new Date(ano, mesAtual).toLocaleString("pt-BR",{month:"long",year:"numeric"});
+
+    const mesRecebimento = new Date(ano, mesAtual + 2, 1)
+        .toLocaleString("pt-BR", { month: "long", year: "numeric" });
+    document.getElementById("mesReceber").innerText = mesRecebimento;
+
+    diasSemana.forEach(d => {
+        const wd = document.createElement("div");
+        wd.className = "weekday";
+        wd.innerText = d;
+        calendar.appendChild(wd);
+    });
+
+    const primeiroDia = new Date(ano, mesAtual, 1).getDay();
+    const totalDias = new Date(ano, mesAtual+1, 0).getDate();
+
+    for(let i=0;i<primeiroDia;i++) calendar.appendChild(document.createElement("div"));
+
+    let total = 0;
+
+    for(let dia=1;dia<=totalDias;dia++){
+        const key = `${ano}-${mesAtual}-${dia}`;
+        const dados = JSON.parse(localStorage.getItem(key)) || {};
+
+        const div = document.createElement("div");
+        div.className = "day " + (dados.status || "");
+
+        let texto = "Folga";
+
+        if(dados.status === "trabalho"){
+            texto = `<strong>B</strong>das 06h00 às 18h30`;
+        } else if(dados.status){
+            texto = `${dados.horario || ""}<br>${dados.valor ? "R$ "+dados.valor : ""}`;
+        }
+
+        let feriadoTxt = feriadosSP2026[key]
+            ? `<div class="feriado">${feriadosSP2026[key]}</div>`
+            : "";
+
+        div.innerHTML = `<strong>${dia}</strong>${texto}${feriadoTxt}`;
+        div.onclick = () => abrirModal(dia, dados);
+
+        if(dados.valor) total += parseFloat(dados.valor);
+
+        calendar.appendChild(div);
+    }
+
+    document.getElementById("totalMes").innerText = total.toFixed(2);
+}
+
+function abrirModal(dia, dados){
+    diaSelecionado = dia;
+    document.getElementById("modalDia").innerText = `Dia ${dia}`;
+    document.getElementById("status").value = dados.status || "";
+    document.getElementById("valor").value = dados.valor || "";
+    document.getElementById("horario").value = dados.horario || "";
+    controlarCampos();
+    document.getElementById("modal").style.display = "flex";
+}
+
+function controlarCampos(){
+    const status = document.getElementById("status").value;
+    const valor = document.getElementById("valor");
+    const horario = document.getElementById("horario");
+
+    if(status === "dejem" || status === "delegada"){
+        valor.disabled = false;
+        horario.disabled = false;
+    } else {
+        valor.value = "";
+        horario.value = "";
+        valor.disabled = true;
+        horario.disabled = true;
+    }
+}
+
+function fecharModal(){
+    document.getElementById("modal").style.display = "none";
+}
+
+function salvarDia(){
+    const status = document.getElementById("status").value;
+    const valor = document.getElementById("valor").value;
+    const horario = document.getElementById("horario").value;
+
+    const key = `${ano}-${mesAtual}-${diaSelecionado}`;
+    localStorage.setItem(key, JSON.stringify({status, valor, horario}));
+
+    fecharModal();
+    renderCalendar();
+}
+
+function mudarMes(v){
+    mesAtual = (mesAtual + v + 12) % 12;
+    renderCalendar();
+}
+
+renderCalendar();
+</script>
+
+</body>
+</html>
