@@ -6,20 +6,25 @@
 
 <style>
 :root {
-    --bg: #2b2b2b;
-    --card: #3a3a3a;
+    --bg: #1f1f1f;
+    --card: #2c2c2c;
+    --card-soft: #333;
     --text: #f1f1f1;
-    --border: #555;
+    --muted: #bdbdbd;
+    --border: #444;
 
     --dejem: #a8e6a3;
     --delegada: #1b5e20;
     --pendente: #f4e285;
     --trabalho: #0d47a1;
+
+    --feriado-borda: #ff5252;
+    --weekend: #252525;
 }
 
 body {
     margin: 0;
-    font-family: "Segoe UI", Arial, sans-serif;
+    font-family: "Segoe UI", system-ui, Arial, sans-serif;
     background: var(--bg);
     color: var(--text);
     display: flex;
@@ -27,48 +32,70 @@ body {
 }
 
 .container {
-    width: 900px;
-    padding: 20px;
+    width: 100%;
+    max-width: 1100px;
+    padding: 16px;
     text-align: center;
 }
 
+/* CONTROLES */
 .controls {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 15px;
-    margin-bottom: 15px;
+    gap: 14px;
+    margin-bottom: 16px;
 }
 
 button {
-    background: #555;
+    background: #444;
     color: white;
     border: none;
-    padding: 8px 14px;
+    padding: 8px 16px;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 6px;
+    font-weight: 600;
 }
 
-button:hover { background: #777; }
+button:hover { background: #666; }
 
+/* CALENDÁRIO */
 .calendar {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 6px;
+    gap: 8px;
 }
 
 .weekday {
-    font-weight: bold;
+    font-weight: 600;
     padding: 6px 0;
+    color: var(--muted);
+    font-size: 14px;
 }
 
+/* DIA */
 .day {
     background: var(--card);
     border: 1px solid var(--border);
-    padding: 6px;
-    min-height: 95px;
+    padding: 8px;
+    min-height: 105px;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,.25);
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.day:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0,0,0,.35);
+}
+
+.day.weekend {
+    background: var(--weekend);
+}
+
+.day.feriado {
+    border: 2px solid var(--feriado-borda);
 }
 
 .day strong {
@@ -77,99 +104,83 @@ button:hover { background: #777; }
     font-size: 18px;
 }
 
+/* STATUS */
 .dejem { background: var(--dejem); color: #000; }
 .delegada { background: var(--delegada); }
 .pendente { background: var(--pendente); color: #000; }
 .trabalho { background: var(--trabalho); }
 
-.feriado {
-    color: #ff5c5c;
-    font-size: 12px;
+/* RESUMO */
+.resumo {
+    margin-top: 20px;
+    background: var(--card-soft);
+    padding: 14px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.25);
+}
+
+.resumo div {
+    margin-top: 6px;
+    font-size: 15px;
+}
+
+/* CORES DOS TOTAIS */
+#totalDejem {
+    color: #9be89a;
+    font-weight: 800;
+}
+
+#totalDelegada {
+    color: #2ecc71;
+    font-weight: 800;
 }
 
 .total {
-    margin-top: 20px;
-    font-size: 18px;
-}
-
-/* MODAL */
-.modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.6);
-    align-items: center;
-    justify-content: center;
-}
-
-.modal-content {
-    background: #444;
-    padding: 20px;
-    border-radius: 6px;
-    width: 320px;
-    text-align: left;
-}
-
-label {
-    display: block;
-    margin-top: 12px;
-}
-
-select, input {
-    width: 100%;
-    padding: 6px;
-    margin-top: 4px;
-}
-
-.modal-actions {
     margin-top: 18px;
-    display: flex;
-    justify-content: space-between;
+    font-size: 18px;
+    background: var(--card-soft);
+    padding: 14px;
+    border-radius: 10px;
 }
 
-/* RESPONSIVO */
-@media (max-width: 600px) {
-    .container {
-        width: 100%;
-        padding: 10px;
-    }
+/* LEGENDA */
+.legenda {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 18px;
+    font-size: 14px;
+}
 
+.legenda span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
     .calendar {
-        gap: 4px;
-    }
-
-    .day {
-        min-height: 80px;
-        padding: 4px;
-        font-size: 12px;
+        grid-template-columns: repeat(2, 1fr);
     }
 
     .weekday {
-        font-size: 12px;
+        display: none;
     }
 
-    .day strong {
-        font-size: 20px;
-    }
-
-    h1 {
-        font-size: 20px;
-    }
-
-    .total {
-        font-size: 16px;
-    }
-
-    .modal-content {
-        width: 90%;
+    .day {
+        min-height: 120px;
     }
 }
+
 </style>
 </head>
 
 <body>
 
 <div class="container">
+
 <h1>Calendário de Trabalho — 2026</h1>
 
 <div class="controls">
@@ -178,16 +189,34 @@ select, input {
     <button onclick="mudarMes(1)">▶</button>
 </div>
 
+<div class="legenda">
+    <span>🟩 DEJEM</span>
+    <span>🟢 Delegada</span>
+    <span>🟨 Pendente</span>
+    <span>🟦 Trabalho</span>
+    <span>🔴 Feriado</span>
+</div>
+
 <div class="calendar" id="calendar"></div>
 
-<div class="total">
-    Receber no mês <span id="mesReceber"></span>: R$ <span id="totalMes">0.00</span>
-</div>
+<div class="resumo">
+    <div>Previsão de aprovados (ainda não somado): R$ <span id="totalPendente">0.00</span></div>
+    <div>DEJEM Feita valor: R$ <span id="totalDejem">0.00</span></div>
+    <div>Delegada Feita valor: R$ <span id="totalDelegada">0.00</span></div>
 </div>
 
+<div class="total">
+    <strong>Total geral do mês:</strong> R$ <span id="totalMes">0.00</span>
+    <div style="margin-top:8px;color:#f4e285;font-size:14px;">
+        ⚠️ Valor a receber daqui 2 meses ⚠️
+    </div>
+</div>
+
+</div> <!-- container FECHA CORRETAMENTE AQUI -->
+
 <!-- MODAL -->
-<div class="modal" id="modal">
-    <div class="modal-content">
+<div class="modal" id="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); align-items:center; justify-content:center;">
+    <div style="background:#444;padding:20px;border-radius:6px;width:320px;text-align:left;">
         <h3 id="modalDia"></h3>
 
         <label>Status
@@ -200,15 +229,18 @@ select, input {
             </select>
         </label>
 
-        <label>Horário
-            <input type="text" id="horario" placeholder="Ex: Das 22h00 às 06h00" disabled>
-        </label>
+        <label>
+    Horário
+    <textarea id="horario" rows="2" disabled></textarea>
+</label>
 
-        <label>Valor (R$)
-            <input type="number" id="valor" step="0.01" disabled>
-        </label>
+<div class="linha-campo">
+    <span>Valor (R$)</span>
+    <input type="number" id="valor" step="0.01" disabled>
+</div>
 
-        <div class="modal-actions">
+
+        <div style="margin-top:18px;display:flex;justify-content:space-between;">
             <button onclick="salvarDia()">Salvar</button>
             <button onclick="fecharModal()">Cancelar</button>
         </div>
@@ -222,35 +254,44 @@ let diaSelecionado = null;
 
 const diasSemana = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
 
-const feriadosSP2026 = {
+const feriados = {
     "2026-0-1": "Confraternização Universal",
-    "2026-0-25": "Aniversário de São Paulo",
+    "2026-0-25": "Aniversário da Cidade de São Paulo",
+
     "2026-1-16": "Carnaval",
     "2026-1-17": "Carnaval",
-    "2026-1-18": "Quarta-feira de Cinzas",
-    "2026-3-3": "Sexta-feira Santa",
+    "2026-1-18": "Quarta-feira de Cinzas (até 12h)",
+
+    "2026-3-3": "Paixão de Cristo",
     "2026-3-21": "Tiradentes",
-    "2026-4-1": "Dia do Trabalhador",
+
+    "2026-4-1": "Dia Mundial do Trabalho",
+
     "2026-5-4": "Corpus Christi",
-    "2026-6-9": "Revolução Constitucionalista",
+
+    "2026-6-9": "Revolução Constitucionalista (SP)",
+
     "2026-8-7": "Independência do Brasil",
+
     "2026-9-12": "Nossa Senhora Aparecida",
+
+    "2026-9-30": "Dia do Servidor Público (Comemorado)",
+
     "2026-10-2": "Finados",
     "2026-10-15": "Proclamação da República",
-    "2026-10-20": "Consciência Negra",
-    "2026-11-25": "Natal"
+    "2026-10-20": "Dia da Consciência Negra",
+
+    "2026-11-24": "Véspera de Natal",
+    "2026-11-25": "Natal",
+    "2026-11-31": "Véspera de Ano Novo"
 };
 
-function renderCalendar() {
+function renderCalendar(){
     const calendar = document.getElementById("calendar");
     calendar.innerHTML = "";
 
     document.getElementById("mesAno").innerText =
         new Date(ano, mesAtual).toLocaleString("pt-BR",{month:"long",year:"numeric"});
-
-    const mesRecebimento = new Date(ano, mesAtual + 2, 1)
-        .toLocaleString("pt-BR", { month: "long", year: "numeric" });
-    document.getElementById("mesReceber").innerText = mesRecebimento;
 
     diasSemana.forEach(d => {
         const wd = document.createElement("div");
@@ -260,40 +301,54 @@ function renderCalendar() {
     });
 
     const primeiroDia = new Date(ano, mesAtual, 1).getDay();
-    const totalDias = new Date(ano, mesAtual+1, 0).getDate();
+    const totalDias = new Date(ano, mesAtual + 1, 0).getDate();
 
     for(let i=0;i<primeiroDia;i++) calendar.appendChild(document.createElement("div"));
 
-    let total = 0;
+    let totalGeral = 0;
+    let totalPendente = 0;
+    let totalDejem = 0;
+    let totalDelegada = 0;
 
-    for(let dia=1;dia<=totalDias;dia++){
+    for(let dia=1; dia<=totalDias; dia++){
         const key = `${ano}-${mesAtual}-${dia}`;
         const dados = JSON.parse(localStorage.getItem(key)) || {};
 
+        const nomeFeriado = feriados[key];
+
         const div = document.createElement("div");
-        div.className = "day " + (dados.status || "");
+        div.className = "day " + (dados.status || "") + (nomeFeriado ? " feriado" : "");
 
         let texto = "Folga";
 
         if(dados.status === "trabalho"){
-            texto = `<strong>B</strong>das 06h00 às 18h30`;
+            texto = "<strong>B</strong> das 06h00 às 18h30";
         } else if(dados.status){
             texto = `${dados.horario || ""}<br>${dados.valor ? "R$ "+dados.valor : ""}`;
         }
 
-        let feriadoTxt = feriadosSP2026[key]
-            ? `<div class="feriado">${feriadosSP2026[key]}</div>`
-            : "";
+        div.innerHTML = `
+            <strong style="${nomeFeriado ? 'color:#ff5252' : ''}">${dia}</strong>
+            ${texto}
+            ${nomeFeriado ? `<div style="margin-top:6px;font-size:12px;color:#ff7b7b;">${nomeFeriado}</div>` : ""}
+        `;
 
-        div.innerHTML = `<strong>${dia}</strong>${texto}${feriadoTxt}`;
         div.onclick = () => abrirModal(dia, dados);
 
-        if(dados.valor) total += parseFloat(dados.valor);
+        if(dados.valor){
+            const v = parseFloat(dados.valor);
+            if(dados.status === "pendente") totalPendente += v;
+            if(dados.status === "dejem") { totalDejem += v; totalGeral += v; }
+            if(dados.status === "delegada") { totalDelegada += v; totalGeral += v; }
+        }
 
         calendar.appendChild(div);
     }
 
-    document.getElementById("totalMes").innerText = total.toFixed(2);
+    document.getElementById("totalMes").innerText = totalGeral.toFixed(2);
+    document.getElementById("totalPendente").innerText = totalPendente.toFixed(2);
+    document.getElementById("totalDejem").innerText = totalDejem.toFixed(2);
+    document.getElementById("totalDelegada").innerText = totalDelegada.toFixed(2);
 }
 
 function abrirModal(dia, dados){
@@ -311,7 +366,7 @@ function controlarCampos(){
     const valor = document.getElementById("valor");
     const horario = document.getElementById("horario");
 
-    if(status === "dejem" || status === "delegada"){
+    if(status === "pendente" || status === "dejem" || status === "delegada"){
         valor.disabled = false;
         horario.disabled = false;
     } else {
@@ -327,6 +382,8 @@ function fecharModal(){
 }
 
 function salvarDia(){
+    if(!confirm("Tem certeza que deseja salvar as alterações deste dia?")) return;
+
     const status = document.getElementById("status").value;
     const valor = document.getElementById("valor").value;
     const horario = document.getElementById("horario").value;
